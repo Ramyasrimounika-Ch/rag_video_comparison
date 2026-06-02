@@ -6,7 +6,7 @@ from faster_whisper import WhisperModel
 
 
 # Use existing HuggingFace cache
-os.environ["HF_HOME"] = r"D:\huggingface"
+os.environ["HF_HOME"] = r"/tmp/huggingface"
 
 
 print("Loading Whisper Model...")
@@ -18,10 +18,6 @@ def get_model():
     if model is None:
         model = WhisperModel("tiny", device="cpu", compute_type="int8")
     return model
-
-model = get_model()
-
-print("Whisper Model Loaded")
 
 
 def download_video(video_url: str):
@@ -66,11 +62,14 @@ def transcribe_video(
         video_url
     )
 
+
     try:
 
         print(
             f"Transcribing: {video_path}"
         )
+
+        model=get_model()
 
         segments, info = model.transcribe(
             video_path,

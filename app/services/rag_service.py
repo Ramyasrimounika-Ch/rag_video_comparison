@@ -4,9 +4,7 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter
 )
 
-from app.services.embeddings import (
-    embedding_model
-)
+from app.services.embeddings import get_embedding_model
 
 from app.services.qdrant_service import (
     client,
@@ -53,7 +51,7 @@ def store_video_chunks(
             2
         )
     points = []
-
+    embedding_model = get_embedding_model()
     for idx, chunk in enumerate(chunks):
 
         vector = embedding_model.embed_query(
