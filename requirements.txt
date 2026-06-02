@@ -1,6 +1,6 @@
 fastapi
 uvicorn[standard]
-
+faster-whisper
 langchain
 langchain-community
 langchain-core
@@ -26,5 +26,4 @@ sse-starlette
 pydantic
 
 requests
-
 tiktoken
