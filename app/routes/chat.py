@@ -1,0 +1,20 @@
+from fastapi import APIRouter
+from app.models.schemas import ChatRequest
+from app.graph.chatbot_graph import chatbot_graph
+
+router = APIRouter()
+
+@router.post("/chat")
+async def chat(request: ChatRequest):
+
+    result = chatbot_graph.invoke(
+    {"question": request.question},
+    config={
+        "configurable": {
+            "thread_id": request.session_id
+        }
+    }
+)
+    return {
+        "answer":result["answer"]
+    }
