@@ -4,7 +4,7 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter
 )
 
-from app.services.embeddings import get_embedding_model
+# from app.services.embeddings import get_embedding_model
 
 from app.services.qdrant_service import (
     client,
