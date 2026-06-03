@@ -22,7 +22,7 @@ deepgram-sdk
 python-dotenv
 
 sse-starlette
-
+langchain-groq
 pydantic
 
 requests

@@ -2,14 +2,15 @@ from typing import TypedDict
 from langgraph.graph import StateGraph,END
 from langgraph.checkpoint.memory import MemorySaver
 from app.graph.prompt import ANALYST_PROMPT
-from langchain_google_genai import ChatGoogleGenerativeAI
-from app.config import GOOGLE_API_KEY
 from app.services.video_store import get_video_data
 from app.services.rag_service import retrieve_chunks
 import re
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
-    google_api_key=GOOGLE_API_KEY,
+from langchain_groq import ChatGroq
+from app.config import GROQ_API_KEY
+
+llm = ChatGroq(
+    model="llama-3.1-8b-instant",
+    api_key=GROQ_API_KEY,
     temperature=0.3
 )
 memory=MemorySaver()
@@ -18,6 +19,18 @@ class GraphState(TypedDict):
     retrieved_docs: list
     answer: str
     mode:str
+    chat_history:list
+
+def history_node(state: GraphState):
+
+    history = []
+
+    if "chat_history" in state:
+        history = state["chat_history"]
+
+    return {
+        "chat_history": history
+    }
 
 def retrieve_node(state: GraphState):
     docs = retrieve_chunks(state["question"])
@@ -66,7 +79,7 @@ def extract_video_id(question: str):
 
 def generate_node(state:GraphState):
     question = state["question"]
-
+    chat_history = state.get("chat_history", [])
     # 🚨 HARD BLOCK GREETINGS (NO LLM, NO SOURCES)
     if is_greeting(question):
         response = llm.invoke(question)
@@ -105,9 +118,21 @@ Chunk: {doc['chunk_index']}
             f"- [{doc['video_id']} | {platform} | {doc.get('creator')} | Chunk {doc['chunk_index']}]"
         )
 
+    history_text = ""
+
+    for msg in state.get(
+        "chat_history",
+        []
+    ):
+        history_text += (
+            f"{msg['role']}: "
+            f"{msg['content']}\n"
+        )    
+
     prompt = ANALYST_PROMPT.format(
         question=state["question"],
-        context=context
+        context=context,
+        history_text=history_text
     )
 
     response = llm.invoke(prompt)
@@ -120,7 +145,13 @@ Chunk: {doc['chunk_index']}
     else:
         final_answer += "\n\nSources:\n- None"
 
-    return {"answer": final_answer}
+    new_history = chat_history + [
+        {"role": "user", "content": question},
+        {"role": "assistant", "content": final_answer}
+    ]
+    
+
+    return {"answer": final_answer,"chat_history":new_history}
 
 def time_node(state: GraphState):
 
