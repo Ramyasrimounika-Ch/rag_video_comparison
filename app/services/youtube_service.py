@@ -99,19 +99,25 @@ def get_youtube_metadata(url: str):
 
 def get_youtube_transcript(url: str):
 
-    
-
     video_id = extract_video_id(url)
+
+    print("VIDEO ID:", video_id)
 
     try:
         transcript = YouTubeTranscriptApi().fetch(video_id)
-    except Exception:
+
+        print("TRANSCRIPT OBJECT:", transcript)
+
+    except Exception as e:
+        print("TRANSCRIPT ERROR:", str(e))
         transcript = []
 
     full_text = " ".join(
         item.text
         for item in transcript
     )
+
+    print("TRANSCRIPT LENGTH:", len(full_text))
 
     return full_text
 
