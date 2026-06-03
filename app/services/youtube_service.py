@@ -2,6 +2,30 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from urllib.parse import urlparse, parse_qs
 import requests
 from app.config import YOUTUBE_API_KEY
+import assemblyai as aai
+from app.config import ASSEMBLYAI_API_KEY
+
+aai.settings.api_key = ASSEMBLYAI_API_KEY
+import yt_dlp
+
+def download_audio(url):
+    ydl_opts = {
+        "format": "bestaudio/best",
+        "outtmpl": "audio.%(ext)s"
+    }
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
+
+    return "audio.webm"
+
+def transcribe_audio(audio_file):
+    transcriber = aai.Transcriber()
+
+    transcript = transcriber.transcribe(audio_file)
+
+    return transcript.text
+
 def extract_video_id(url: str):
 
     parsed = urlparse(url)
@@ -97,36 +121,13 @@ def get_youtube_metadata(url: str):
         "hashtags": snippet.get("tags", [])
     }
 
-def get_youtube_transcript(url: str):
-
-    video_id = extract_video_id(url)
-
-    print("VIDEO ID:", video_id)
-
-    try:
-        transcript = YouTubeTranscriptApi().fetch(video_id)
-
-        print("TRANSCRIPT OBJECT:", transcript)
-
-    except Exception as e:
-        print("TRANSCRIPT ERROR:", str(e))
-        transcript = []
-
-    full_text = " ".join(
-        item.text
-        for item in transcript
-    )
-
-    print("TRANSCRIPT LENGTH:", len(full_text))
-
-    return full_text
-
 
 def process_youtube_video(url: str):
 
     metadata = get_youtube_metadata(url)
 
-    transcript = get_youtube_transcript(url)
+    audio_file = download_audio(url)
+    transcript = transcribe_audio(audio_file)
 
     return {
         "metadata": metadata,

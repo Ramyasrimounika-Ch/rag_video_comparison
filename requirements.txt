@@ -14,7 +14,7 @@ sentence-transformers
 
 yt-dlp
 youtube-transcript-api
-
+assemblyai
 apify-client
 
 deepgram-sdk
