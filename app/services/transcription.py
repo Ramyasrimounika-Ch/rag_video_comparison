@@ -71,10 +71,12 @@ def transcribe_video(
 
         model=get_model()
 
+        print("before whisper")
         segments, info = model.transcribe(
             video_path,
             beam_size=5
         )
+        print("after whisper")
 
         transcript_parts = []
 

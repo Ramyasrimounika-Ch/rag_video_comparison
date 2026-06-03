@@ -15,12 +15,30 @@ from app.services.transcription import transcribe_video
 print("IMPORT 5")
 from app.services.rag_service import store_video_chunks
 
+from app.services.qdrant_service import (
+    client,
+    COLLECTION_NAME,
+    create_collection
+)
+
+
 print("IMPORT 6")
 router = APIRouter()
 
 
 @router.post("/ingest")
 async def ingest_videos(request: IngestRequest):
+
+    try:
+        client.delete_collection(COLLECTION_NAME)
+        print("Old collection deleted")
+    except Exception as e:
+        print("Collection not found:", e)
+
+    # Create fresh collection
+    create_collection()
+
+    # Continue with ingestion...
 
     print("=" * 50)
     print("STEP 1: PROCESSING YOUTUBE")
