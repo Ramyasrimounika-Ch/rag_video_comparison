@@ -3,18 +3,17 @@ from uuid import uuid4
 from langchain_text_splitters import (
     RecursiveCharacterTextSplitter
 )
-
+print("RAG STEP 2")
 from app.services.embeddings import get_embedding_model
-
+print("RAG STEP 3")
 from app.services.qdrant_service import (
     client,
     COLLECTION_NAME,
     create_collection
 )
-
-
+print("RAG STEP 4")
 create_collection()
-
+print("RAG STEP 5")
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=500,
     chunk_overlap=100

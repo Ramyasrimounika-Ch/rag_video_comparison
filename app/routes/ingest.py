@@ -1,11 +1,21 @@
 from fastapi import APIRouter
 from app.models.schemas import IngestRequest
+print("IMPORT 1")
 from app.services.video_store import save_video_data
+
+print("IMPORT 2")
 from app.services.youtube_service import process_youtube_video
+
+print("IMPORT 3")
 from app.services.instagram_service import get_instagram_reel_data
+
+print("IMPORT 4")
 from app.services.transcription import transcribe_video
+
+print("IMPORT 5")
 from app.services.rag_service import store_video_chunks
 
+print("IMPORT 6")
 router = APIRouter()
 
 

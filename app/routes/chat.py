@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 from app.models.schemas import ChatRequest
+print("CHAT IMPORT 1")
 from app.graph.chatbot_graph import chatbot_graph
-
+print("CHAT IMPORT 2")
 router = APIRouter()
 
 @router.post("/chat")
