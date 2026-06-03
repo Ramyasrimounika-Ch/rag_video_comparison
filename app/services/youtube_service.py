@@ -1,30 +1,46 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 from urllib.parse import urlparse, parse_qs
 import requests
-from app.config import YOUTUBE_API_KEY
-import assemblyai as aai
-from app.config import ASSEMBLYAI_API_KEY
+from apify_client import ApifyClient
+from app.config import APIFY_API_TOKEN,YOUTUBE_API_KEY
 
-aai.settings.api_key = ASSEMBLYAI_API_KEY
-import yt_dlp
+client = ApifyClient(APIFY_API_TOKEN)
 
-def download_audio(url):
-    ydl_opts = {
-        "format": "bestaudio/best",
-        "outtmpl": "audio.%(ext)s"
+TRANSCRIPT_ACTOR_ID = "pintostudio/youtube-transcript-scraper"
+
+def get_youtube_transcript(url: str):
+
+    print("Fetching transcript from Apify:", url)
+
+    run_input = {
+       "videoUrl": url
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
+    run = client.actor(
+        TRANSCRIPT_ACTOR_ID
+    ).call(
+        run_input=run_input
+    )
 
-    return "audio.webm"
+    dataset_id = run.default_dataset_id
 
-def transcribe_audio(audio_file):
-    transcriber = aai.Transcriber()
+    items = list(
+        client.dataset(dataset_id).iterate_items()
+    )
 
-    transcript = transcriber.transcribe(audio_file)
+    if not items:
+        return ""
 
-    return transcript.text
+    transcript_chunks = items[0].get("data", [])
+
+    transcript = " ".join(
+        chunk.get("text", "")
+        for chunk in transcript_chunks
+    )
+
+    print("TRANSCRIPT LENGTH:", len(transcript))
+
+    return transcript
 
 def extract_video_id(url: str):
 
@@ -126,8 +142,7 @@ def process_youtube_video(url: str):
 
     metadata = get_youtube_metadata(url)
 
-    audio_file = download_audio(url)
-    transcript = transcribe_audio(audio_file)
+    transcript = get_youtube_transcript(url)
 
     return {
         "metadata": metadata,
