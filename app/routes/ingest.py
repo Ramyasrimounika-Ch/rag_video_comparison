@@ -49,9 +49,9 @@ async def ingest_videos(request: IngestRequest):
     )
 
     print("STEP 2: STORING YOUTUBE CHUNKS")
-
+    
     store_video_chunks(
-        transcript=youtube_data["transcript"],
+        transcript=youtube_data["transcript"]["transcript"],
         metadata=youtube_data["metadata"],
         video_id="A"
     )
@@ -68,9 +68,13 @@ async def ingest_videos(request: IngestRequest):
 
     print("STEP 5: STARTING TRANSCRIPTION")
 
-    instagram_transcript = transcribe_video(
+    transcription_result = transcribe_video(
         instagram_metadata["video_url"]
     )
+    instagram_transcript = transcription_result["transcript"]
+
+    instagram_segments = transcription_result["segments"]
+
     print("STEP 6: TRANSCRIPTION FINISHED")
 
     print(
@@ -90,14 +94,16 @@ async def ingest_videos(request: IngestRequest):
 
     save_video_data(
     "A",
-      youtube_data["transcript"],
-    youtube_data["metadata"]
+    youtube_data["transcript"]["transcript"],
+    youtube_data["metadata"],
+    youtube_data["transcript"]["segments"]
     )
 
     save_video_data(
         "B",
         instagram_transcript,
-        instagram_metadata
+        instagram_metadata,
+        instagram_segments
     )
 
     return {

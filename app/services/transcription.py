@@ -24,7 +24,7 @@ def download_video(video_url: str):
 
     print("Downloading video...")
 
-    response = requests.get(
+    response = requests.get(#downloads video from url in bytes format
         video_url,
         stream=True,
         timeout=120
@@ -79,21 +79,30 @@ def transcribe_video(
         print("after whisper")
 
         transcript_parts = []
+        segment_data = []
 
         for segment in segments:
+
             transcript_parts.append(
                 segment.text
+            )
+
+            segment_data.append(
+                {
+                    "start": segment.start,
+                    "end": segment.end,
+                    "text": segment.text
+                }
             )
 
         transcript = " ".join(
             transcript_parts
         )
 
-        print(
-            f"Transcript Length: {len(transcript)}"
-        )
-
-        return transcript
+        return {
+            "transcript": transcript,
+            "segments": segment_data
+        }
 
     except Exception as e:
 

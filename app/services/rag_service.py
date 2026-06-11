@@ -27,13 +27,56 @@ def chunk_transcript(
         transcript
     )
 
+def detect_query_type(question: str):
+
+    q = question.lower()
+
+    comparison_words = [
+        "compare",
+        "difference",
+        "better",
+        "stronger",
+        "vs",
+        "versus",
+        "which video"
+    ]
+
+    metadata_words = [
+        "followers",
+        "subscribers",
+        "views",
+        "likes",
+        "comments",
+        "engagement",
+        "creator",
+        "subscribers"
+    ]
+
+    if any(word in q for word in metadata_words):
+        return "metadata"
+
+    if any(word in q for word in comparison_words):
+        return "comparison"
+
+    return "content"
+
+def extract_video_filter(question: str):
+
+    q = question.lower()
+
+    if "video a" in q:
+        return "A"
+
+    if "video b" in q:
+        return "B"
+
+    return None
 
 def store_video_chunks(
     transcript: str,
     metadata: dict,
     video_id: str
 ):
-
     print("=" * 50)
     print("VIDEO:", video_id)
 
@@ -115,10 +158,16 @@ def store_video_chunks(
 
     return len(chunks)
 
-def retrieve_chunks(query: str, limit: int = 8):
+def retrieve_chunks(
+    query: str,
+    limit: int = 8
+):
 
-    embedding_model=get_embedding_model()
-    query_vector = embedding_model.embed_query(query)
+    embedding_model = get_embedding_model()
+
+    query_vector = embedding_model.embed_query(
+        query
+    )
 
     results = client.query_points(
         collection_name=COLLECTION_NAME,
@@ -127,41 +176,85 @@ def retrieve_chunks(query: str, limit: int = 8):
     )
 
     seen = set()
-    video_a = []
-    video_b = []
+
+    all_docs = []
 
     for item in results.points:
 
         payload = item.payload
-        key = (payload["video_id"], payload["chunk_index"])
+
+        key = (
+            payload["video_id"],
+            payload["chunk_index"]
+        )
 
         if key in seen:
             continue
 
         seen.add(key)
 
-        data = {
-            "score": item.score,
-            "text": payload["chunk_text"],
-            "video_id": payload["video_id"],
-            "platform": payload.get("platform") or "unknown",
-            "creator": payload.get("creator"),
-            "followers": payload.get("followers", 0),
-            "views": payload.get("views", 0),
-            "likes": payload.get("likes", 0),
-            "comments": payload.get("comments", 0),
-            "engagement_rate": payload.get("engagement_rate", 0),
-            "chunk_index": payload["chunk_index"],
-        }
+        all_docs.append(
+            {
+                "score": item.score,
+                "text": payload["chunk_text"],
+                "video_id": payload["video_id"],
+                "platform":
+                    payload.get("platform"),
+                "creator":
+                    payload.get("creator"),
+                "followers":
+                    payload.get("followers",0),
+                "views":
+                    payload.get("views",0),
+                "likes":
+                    payload.get("likes",0),
+                "comments":
+                    payload.get("comments",0),
+                "engagement_rate":
+                    payload.get(
+                        "engagement_rate",
+                        0
+                    ),
+                "chunk_index":
+                    payload["chunk_index"]
+            }
+        )
 
-        if payload["video_id"] == "A":
-            video_a.append(data)
-        else:
-            video_b.append(data)
+    query_type = detect_query_type(
+        query
+    )
 
-    final = video_a[:limit // 2] + video_b[:limit // 2]
+    video_filter = extract_video_filter(
+        query
+    )
 
-    if len(final) < 3:
-        final = (video_a + video_b)[:limit]
+    if query_type == "comparison":
 
-    return final
+        video_a = [
+            d for d in all_docs
+            if d["video_id"] == "A"
+        ]
+
+        video_b = [
+            d for d in all_docs
+            if d["video_id"] == "B"
+        ]
+
+        final = (
+            video_a[:limit//2]
+            +
+            video_b[:limit//2]
+        )
+
+        return final
+
+    if video_filter:
+
+        filtered = [
+            d for d in all_docs
+            if d["video_id"] == video_filter
+        ]
+
+        return filtered[:limit]
+
+    return all_docs[:limit]

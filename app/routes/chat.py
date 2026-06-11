@@ -9,7 +9,7 @@ router = APIRouter()
 async def chat(request: ChatRequest):
 
     result = chatbot_graph.invoke(
-    {"question": request.question,"chat_history": [] },
+    {"question": request.question},
     config={
         "configurable": {
             "thread_id": request.session_id

@@ -32,7 +32,7 @@ def get_instagram_followers(username: str):
 def get_instagram_reel_data(reel_url: str):
     run_input = {
         "directUrls": [reel_url],
-        "resultsLimit": 1,
+        "resultsLimit": 1,#Return only one result
     }
 
     run = client.actor(ACTOR_ID).call(run_input=run_input)

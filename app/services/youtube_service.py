@@ -31,8 +31,22 @@ def get_youtube_transcript(url: str):
     if not items:
         return ""
 
-    transcript_chunks = items[0].get("data", [])
+    raw_chunks = items[0].get("data", [])
 
+    transcript_chunks = []
+
+    for chunk in raw_chunks:
+        start = float(chunk.get("start",0))
+        dur = float(chunk.get("dur",0))
+
+        transcript_chunks.append(
+            {
+                "start": start,
+                "end": start + dur,
+                "text": chunk.get("text","")
+            }
+        )
+        
     transcript = " ".join(
         chunk.get("text", "")
         for chunk in transcript_chunks
@@ -40,7 +54,10 @@ def get_youtube_transcript(url: str):
 
     print("TRANSCRIPT LENGTH:", len(transcript))
 
-    return transcript
+    return {
+    "transcript": transcript,
+    "segments": transcript_chunks
+    }
 
 def extract_video_id(url: str):
 
