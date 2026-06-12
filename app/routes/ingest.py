@@ -15,6 +15,7 @@ from app.services.transcription import transcribe_video
 print("IMPORT 5")
 from app.services.rag_service import store_video_chunks
 
+from test import print_memory
 from app.services.qdrant_service import (
     client,
     COLLECTION_NAME,
@@ -47,7 +48,8 @@ async def ingest_videos(request: IngestRequest):
     youtube_data = process_youtube_video(
         request.youtube_url
     )
-
+    
+    print_memory()
     print("STEP 2: STORING YOUTUBE CHUNKS")
     
     store_video_chunks(
@@ -55,16 +57,19 @@ async def ingest_videos(request: IngestRequest):
         metadata=youtube_data["metadata"],
         video_id="A"
     )
+    print_memory()
 
     print("STEP 3: FETCHING INSTAGRAM METADATA")
 
     instagram_metadata = get_instagram_reel_data(
         request.instagram_url
     )
+    print_memory()
 
     print("STEP 4: INSTAGRAM METADATA RECEIVED")
 
     print(instagram_metadata)
+    print_memory()
 
     print("STEP 5: STARTING TRANSCRIPTION")
 
@@ -74,13 +79,15 @@ async def ingest_videos(request: IngestRequest):
     instagram_transcript = transcription_result["transcript"]
 
     instagram_segments = transcription_result["segments"]
+    print_memory()
 
     print("STEP 6: TRANSCRIPTION FINISHED")
-
+    print_memory()
     print(
         "Transcript Length:",
         len(instagram_transcript)
     )
+    print_memory()
 
     print("STEP 7: STORING INSTAGRAM CHUNKS")
 

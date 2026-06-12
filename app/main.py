@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from test import print_memory
 print("STEP 1")
 from app.routes.ingest import router as ingest_router
-
+print_memory()
 print("STEP 2")
 from app.routes.chat import router as chat_router
-
+print_memory()
 print("STEP 3")
 
 app = FastAPI(
