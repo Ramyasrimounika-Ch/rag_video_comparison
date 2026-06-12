@@ -5,19 +5,14 @@ langchain
 langchain-community
 langchain-core
 langgraph
-
-langchain-google-genai
-
+psutil
 qdrant-client
 
 sentence-transformers
 
 yt-dlp
 youtube-transcript-api
-assemblyai
 apify-client
-
-deepgram-sdk
 
 python-dotenv
 
