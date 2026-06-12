@@ -8,7 +8,7 @@ langgraph
 psutil
 qdrant-client
 sentence-transformers
-google-genai
+google-generativeai
 yt-dlp
 youtube-transcript-api
 apify-client
