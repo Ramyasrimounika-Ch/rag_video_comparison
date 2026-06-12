@@ -74,15 +74,9 @@ def transcribe_video(
         )
         print("after whisper")
 
-        transcript_parts = []
         segment_data = []
 
         for segment in segments:
-
-            transcript_parts.append(
-                segment.text
-            )
-
             segment_data.append(
                 {
                     "start": segment.start,
@@ -90,9 +84,6 @@ def transcribe_video(
                     "text": segment.text
                 }
             )
-
-        del model
-        gc.collect()
 
         return {
             "segments": segment_data
@@ -107,14 +98,9 @@ def transcribe_video(
         raise
 
     finally:
-
-        if os.path.exists(
-            video_path
-        ):
-            os.remove(
-                video_path
-            )
-
-            print(
-                f"Deleted temp file: {video_path}"
-            )
+        if model is not None:
+            del model
+            gc.collect()
+        if os.path.exists(video_path):
+            os.remove(video_path)
+            print(f"Deleted temp file: {video_path}")

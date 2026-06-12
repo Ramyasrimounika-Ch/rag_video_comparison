@@ -1,11 +1,9 @@
 from uuid import uuid4
-
+import gc
 from langchain_text_splitters import (
     RecursiveCharacterTextSplitter
 )
 print("RAG STEP 2")
-from app.services.embeddings import get_embedding_model
-print("RAG STEP 3")
 from app.services.qdrant_service import (
     client,
     COLLECTION_NAME,
@@ -18,6 +16,12 @@ text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
     chunk_overlap=100
 )
+import google.generativeai as genai
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 
 def chunk_transcript(
@@ -105,13 +109,16 @@ def store_video_chunks(
 
     points = []
 
-    embedding_model = get_embedding_model()
-
     for idx, chunk in enumerate(chunks):
 
         print(f"Embedding chunk {idx}")
 
-        vector = embedding_model.embed_query(chunk)
+        result = genai.embed_content(
+            model="models/text-embedding-004",
+            content=chunk
+        )
+
+        vector = result["embedding"]
 
         if not vector:
             print("EMPTY VECTOR")
@@ -155,19 +162,23 @@ def store_video_chunks(
         points=points,
         wait=False
     )
-
-    return len(chunks)
+    x=len(chunks)
+    del points
+    del chunks
+    gc.collect()
+    return x
 
 def retrieve_chunks(
     query: str,
     limit: int = 8
 ):
 
-    embedding_model = get_embedding_model()
+    result = genai.embed_content(
+    model="models/text-embedding-004",
+    content=query
+)
 
-    query_vector = embedding_model.embed_query(
-        query
-    )
+    query_vector = result["embedding"]
 
     results = client.query_points(
         collection_name=COLLECTION_NAME,
