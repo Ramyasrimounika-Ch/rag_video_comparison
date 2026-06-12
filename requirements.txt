@@ -9,7 +9,7 @@ psutil
 qdrant-client
 
 sentence-transformers
-
+google-generativeai
 yt-dlp
 youtube-transcript-api
 apify-client
