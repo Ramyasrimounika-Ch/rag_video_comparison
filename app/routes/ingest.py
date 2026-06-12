@@ -64,6 +64,7 @@ async def ingest_videos(request: IngestRequest):
     instagram_metadata = get_instagram_reel_data(
         request.instagram_url
     )
+    print(instagram_metadata["video_url"])
     print_memory()
 
     print("STEP 4: INSTAGRAM METADATA RECEIVED")
