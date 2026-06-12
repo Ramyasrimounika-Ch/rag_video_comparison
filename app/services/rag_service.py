@@ -15,7 +15,7 @@ print("RAG STEP 4")
 create_collection()
 print("RAG STEP 5")
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500,
+    chunk_size=1000,
     chunk_overlap=100
 )
 

@@ -10,7 +10,7 @@ def get_embedding_model():
 
     if embedding_model is None:
         embedding_model = HuggingFaceEmbeddings(
-            model_name="BAAI/bge-small-en-v1.5"
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
         )
 
     return embedding_model

@@ -46,7 +46,7 @@ def get_youtube_transcript(url: str):
                 "text": chunk.get("text","")
             }
         )
-        
+
     transcript = " ".join(
         chunk.get("text", "")
         for chunk in transcript_chunks

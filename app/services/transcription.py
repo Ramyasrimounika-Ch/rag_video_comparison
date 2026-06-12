@@ -3,21 +3,13 @@ import tempfile
 import requests
 
 from faster_whisper import WhisperModel
-
+import gc 
 
 # Use existing HuggingFace cache
 os.environ["HF_HOME"] = r"/tmp/huggingface"
 
 
 print("Loading Whisper Model...")
-
-model = None
-
-def get_model():
-    global model
-    if model is None:
-        model = WhisperModel("tiny", device="cpu", compute_type="int8")
-    return model
 
 
 def download_video(video_url: str):
@@ -69,12 +61,16 @@ def transcribe_video(
             f"Transcribing: {video_path}"
         )
 
-        model=get_model()
+        model = WhisperModel(
+            "tiny",
+            device="cpu",
+            compute_type="int8"
+        )
 
         print("before whisper")
         segments, info = model.transcribe(
             video_path,
-            beam_size=5
+            beam_size=1
         )
         print("after whisper")
 
@@ -95,12 +91,10 @@ def transcribe_video(
                 }
             )
 
-        transcript = " ".join(
-            transcript_parts
-        )
+        del model
+        gc.collect()
 
         return {
-            "transcript": transcript,
             "segments": segment_data
         }
 

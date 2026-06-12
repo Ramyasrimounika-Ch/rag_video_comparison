@@ -76,7 +76,10 @@ async def ingest_videos(request: IngestRequest):
     transcription_result = transcribe_video(
         instagram_metadata["video_url"]
     )
-    instagram_transcript = transcription_result["transcript"]
+    instagram_transcript = " ".join(
+        seg["text"]
+        for seg in transcription_result["segments"]
+    )
 
     instagram_segments = transcription_result["segments"]
     print_memory()
