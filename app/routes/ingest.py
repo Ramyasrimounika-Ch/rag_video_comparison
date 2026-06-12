@@ -68,7 +68,6 @@ async def ingest_videos(request: IngestRequest):
 
     print("STEP 4: INSTAGRAM METADATA RECEIVED")
 
-    print(instagram_metadata)
     print_memory()
 
     print("STEP 5: STARTING TRANSCRIPTION")

@@ -28,7 +28,7 @@ def create_collection():
         client.create_collection(
             collection_name=COLLECTION_NAME,
             vectors_config=VectorParams(
-                size=384,
+                size=3072,
                 distance=Distance.COSINE
             )
         )

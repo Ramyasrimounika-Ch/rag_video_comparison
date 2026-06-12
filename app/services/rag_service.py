@@ -20,9 +20,7 @@ import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 load_dotenv()
-
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
 
 def chunk_transcript(
     transcript: str
@@ -113,12 +111,12 @@ def store_video_chunks(
 
         print(f"Embedding chunk {idx}")
 
-        result = genai.embed_content(
-            model="models/text-embedding-004",
-            content=chunk
-        )
+        response = genai.embed_content(
+    model="models/gemini-embedding-001",
+    content=chunk
+)
 
-        vector = result["embedding"]
+        vector = response["embedding"]
 
         if not vector:
             print("EMPTY VECTOR")
@@ -173,12 +171,12 @@ def retrieve_chunks(
     limit: int = 8
 ):
 
-    result = genai.embed_content(
-    model="models/text-embedding-004",
+    response = genai.embed_content(
+    model="models/gemini-embedding-001",
     content=query
 )
 
-    query_vector = result["embedding"]
+    query_vector = response["embedding"]
 
     results = client.query_points(
         collection_name=COLLECTION_NAME,

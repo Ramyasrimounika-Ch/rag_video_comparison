@@ -1,4 +1,3 @@
-from youtube_transcript_api import YouTubeTranscriptApi
 from urllib.parse import urlparse, parse_qs
 import requests
 from apify_client import ApifyClient
