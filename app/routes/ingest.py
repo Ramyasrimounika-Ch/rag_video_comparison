@@ -99,7 +99,7 @@ async def ingest_videos(request: IngestRequest):
         metadata=instagram_metadata,
         video_id="B"
     )
-
+    print_memory()
     print("STEP 8: COMPLETED")
 
     save_video_data(
